@@ -1,0 +1,90 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+}
+
+header {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+header h1 {
+  font-size: 80px;
+  -webkit-text-stroke-width: 2px; /* largura da borda */
+  -webkit-text-stroke-color: #505050;
+}
+
+main {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+footer {
+  padding: 30px 0 30px 0;
+  background-color: black;
+  width: 100%;
+}
+
+.background-image {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-size: cover;
+  background-position: center;
+  z-index: -1;
+}
+
+.layout-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  height: 100vh;
+  text-align: center;
+  color: white;
+}
+
+.clock-container {
+  padding: 15px;
+  background-color: rgba(0, 0, 0, 0.5);
+  top: 20px;
+  text-align: center;
+  border-radius: 10px;
+  margin-top: 20px;
+}
+
+.clock-date {
+  font-size: 18px;
+  margin-bottom: 5px;
+}
+
+.clock-time {
+  font-size: 25px;
+}
+
+.verse-container {
+  padding: 20px;
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: 10px;
+  width: 90%;
+}
+
+.verse-text {
+  font-size: 25px;
+  line-height: 1.5;
+  display: flex;
+  justify-content: center;
+  text-align: center;
+}
