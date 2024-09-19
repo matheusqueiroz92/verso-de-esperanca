@@ -52,7 +52,7 @@ export const fetchBibleVerse = async () => {
   const verseChapter: number = response.data.chapter;
   const verseNumber: number = response.data.number;
 
-  const responseData = verseText + '\n' + verseBook + '.' + ' ' + verseChapter + ':' + verseNumber + '.'
+  const responseData = `${verseText} ${verseBook} ${verseChapter}:${verseNumber}`;
 
   // Armazena o novo versículo no localStorage e atualiza o timestamp
   localStorage.setItem('bibleVerse', responseData);

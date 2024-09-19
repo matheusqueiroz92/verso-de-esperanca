@@ -16,7 +16,7 @@ export default function Layout() {
         <BibleVerse />
       </main>
 
-      <footer>Desenvolvido por Matheus Queiroz</footer>
+      <footer>Desenvolvido por Matheus Queiroz. Todos os direitos reservados.</footer>
     </div>
   );
 }
