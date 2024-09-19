@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const SIX_HOURS = 6 * 1000; // 6 horas em milissegundos
+const SIX_HOURS = 6 * 60 * 1000; // 6 horas em milissegundos
 
 // Função para obter a imagem da Unsplash e armazenar no localStorage
 export const fetchBackgroundImage = async () => {

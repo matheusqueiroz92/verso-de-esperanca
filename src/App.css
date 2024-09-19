@@ -17,9 +17,9 @@ header {
 }
 
 header h1 {
-  font-size: 80px;
-  -webkit-text-stroke-width: 2px; /* largura da borda */
-  -webkit-text-stroke-color: #505050;
+  font-size: 60px;
+  /* -webkit-text-stroke-width: 1px;
+  -webkit-text-stroke-color: #505050; */
 }
 
 main {

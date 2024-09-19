@@ -16,10 +16,10 @@ COPY . .
 RUN npm run build
 
 # Etapa 2: Servir os arquivos estáticos
-FROM nginx:alpine
+FROM apache:alpine
 
-# Copia os arquivos gerados (build) para o NGINX
-COPY --from=build /app/dist /usr/share/nginx/html
+# Copia os arquivos gerados (build) para o Apache
+COPY --from=build /app/dist /var/www/versodeesperanca.matheusqueiroz.tech/verso-de-esperanca
 
 # Expõe a porta 80 para o NGINX servir o site
 EXPOSE 80
