@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react';
-import { fetchBibleVerse } from '../utils/fetchApi';
+import { fetchBibleVerse, fetchBibliVerseButton } from '../utils/fetchApi';
 
 export default function BibleVerse() {
   const [verse, setVerse] = useState('');
   const [copied, setCopied] = useState(false); // Estado para mostrar feedback ao usuário
 
 
-  useEffect(() => {
+  useEffect(() => { // ao carregar a página, faz um fetch na api e salva no estado
     const loadVerse = async () => {
       const verse = await fetchBibleVerse();
       setVerse(verse);
@@ -24,9 +24,18 @@ export default function BibleVerse() {
   };
 
   return (
-    <div className="verse-container" onClick={copyToClipboard} style={{ cursor: 'pointer' }}>
-      <p className="verse-text">{verse}</p>
-      {copied && <p style={{ color: 'blue' }}>Versículo copiado!</p>} {/* Feedback visual */}
-    </div>
+    <div className="container-verse-btn">
+      <div className="verse-container" onClick={copyToClipboard} style={{ cursor: 'pointer' }}>
+        <p className="verse-text">{verse}</p>
+        {copied && <p style={{ color: 'blue' }}>Versículo copiado!</p>} {/* Feedback visual */}
+      </div>
+      <button
+        className="btn btn-verse"
+        onClick={ async () => {
+          const dataResponse = await fetchBibliVerseButton();
+          setVerse(dataResponse);
+        }}
+      >Gerar outro versículo</button>
+  </div>
   );
 }

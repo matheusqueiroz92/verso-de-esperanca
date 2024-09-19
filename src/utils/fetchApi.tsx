@@ -60,3 +60,24 @@ export const fetchBibleVerse = async () => {
 
   return responseData
 };
+
+export const fetchBibliVerseButton = async () => {
+  const response = await axios.get(
+    `https://www.abibliadigital.com.br/api/verses/nvi/random`
+  );
+
+  const verseText: string = response.data.text;
+  const verseBook: string = response.data.book.name;
+  const verseChapter: number = response.data.chapter;
+  const verseNumber: number = response.data.number;
+
+  const responseData = `${verseText} ${verseBook} ${verseChapter}:${verseNumber}`;
+
+  return responseData
+}
+
+
+// export const fetchBibleVerseSearch = async (param) => {
+
+
+// }
