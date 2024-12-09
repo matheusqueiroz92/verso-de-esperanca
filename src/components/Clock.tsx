@@ -1,35 +1,17 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 
 export default function Clock() {
-  const [time, setTime] = useState(new Date().toLocaleTimeString('pt-BR'));
-  const [date, setDate] = useState(formatDate(new Date()));
+  const [time, setTime] = useState(new Date());
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setTime(new Date().toLocaleTimeString('pt-BR'));
-      setDate(formatDate(new Date()));
-    }, 1000);
-
-    return () => clearInterval(interval);
+    const timer = setInterval(() => setTime(new Date()), 1000);
+    return () => clearInterval(timer);
   }, []);
 
-  // Função para formatar a data e capitalizar a primeira letra
-  function formatDate(date: Date) {
-    const formattedDate = date.toLocaleDateString('pt-BR', {
-      weekday: 'long', 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric'
-    });
-    
-    // Capitalizar a primeira letra da string da data
-    return formattedDate.charAt(0).toUpperCase() + formattedDate.slice(1);
-  }
-
   return (
-    <div className="clock-container">
-      <h2 className="clock-date">{date}</h2>
-      <h3 className="clock-time">{time}</h3>
+    <div className="bg-black/50 backdrop-blur rounded-lg p-4 text-center">
+      <p className="text-lg text-white/90">{time.toLocaleDateString()}</p>
+      <p className="text-2xl text-white">{time.toLocaleTimeString()}</p>
     </div>
   );
 }

@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { fetchBibleVerse, fetchBibliVerseButton } from "../utils/fetchApi";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 export default function BibleVerse() {
   const [verse, setVerse] = useState("");
-  const [copied, setCopied] = useState(false); // Estado para mostrar feedback ao usuário
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-    // ao carregar a página, faz um fetch na api e salva no estado
     const loadVerse = async () => {
       const verse = await fetchBibleVerse();
       setVerse(verse);
@@ -15,35 +16,38 @@ export default function BibleVerse() {
   }, []);
 
   const copyToClipboard = () => {
-    navigator.clipboard
-      .writeText(verse)
-      .then(() => {
-        setCopied(true); // Atualiza o estado para mostrar o feedback
-        setTimeout(() => setCopied(false), 2000); // Limpa o feedback após 2 segundos
-      })
-      .catch((error) => console.error("Erro ao copiar: ", error));
+    navigator.clipboard.writeText(verse).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
   };
 
   return (
-    <div className="container-verse-btn">
-      <div
-        className="verse-container"
+    <div className="w-full max-w-2xl flex flex-col items-center gap-6">
+      <Card
         onClick={copyToClipboard}
-        style={{ cursor: "pointer" }}
+        className="w-full bg-black/50 backdrop-blur cursor-pointer hover:bg-black/60 transition-colors"
       >
-        <p className="verse-text">{verse}</p>
-        {copied && <p style={{ color: "blue" }}>Versículo copiado!</p>}{" "}
-        {/* Feedback visual */}
-      </div>
-      <button
-        className="btn btn-verse"
+        <CardContent className="p-6">
+          <p className="text-xl md:text-2xl text-white text-center leading-relaxed">
+            {verse}
+          </p>
+          {copied && (
+            <p className="text-blue-400 text-center mt-2">Versículo copiado!</p>
+          )}
+        </CardContent>
+      </Card>
+
+      <Button
         onClick={async () => {
-          const dataResponse = await fetchBibliVerseButton();
-          setVerse(dataResponse);
+          const newVerse = await fetchBibliVerseButton();
+          setVerse(newVerse);
         }}
+        variant="outline"
+        className="bg-black/30 border-white/50 text-white hover:bg-black/50"
       >
         Gerar outro versículo
-      </button>
+      </Button>
     </div>
   );
 }

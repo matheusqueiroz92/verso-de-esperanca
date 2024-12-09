@@ -1,18 +1,30 @@
-import axios from 'axios';
+import axios from "axios";
 
 const SIX_HOURS = 6 * 60 * 1000; // 6 horas em milissegundos
 
+// const API_KEY = "SUA_CHAVE_API";
+
+// const config = {
+//   headers: {
+//     Authorization: `Bearer ${API_KEY}`,
+//   },
+// };
+
 // Função para obter a imagem da Unsplash e armazenar no localStorage
 export const fetchBackgroundImage = async () => {
-  const cachedImage = localStorage.getItem('backgroundImage');
-  const lastFetchTime = localStorage.getItem('lastFetchTime');
+  const cachedImage = localStorage.getItem("backgroundImage");
+  const lastFetchTime = localStorage.getItem("lastFetchTime");
   const currentTime = Date.now(); // Timestamp atual
 
   // Convertendo 'lastFetchTime' de string para número
   const lastFetchTimeNumber = Number(lastFetchTime); // Solução para o erro
 
   // Se a última atualização foi há menos de 6 horas, retorna a imagem do cache
-  if (cachedImage && lastFetchTimeNumber && (currentTime - lastFetchTimeNumber) < SIX_HOURS) {
+  if (
+    cachedImage &&
+    lastFetchTimeNumber &&
+    currentTime - lastFetchTimeNumber < SIX_HOURS
+  ) {
     return cachedImage;
   }
 
@@ -22,31 +34,31 @@ export const fetchBackgroundImage = async () => {
   );
   const imageUrl = response.data.urls.full;
 
+  console.log(response);
+
   // Armazena a nova imagem no localStorage e atualiza o timestamp
-  localStorage.setItem('backgroundImage', imageUrl);
-  localStorage.setItem('lastFetchTime', currentTime.toString()); // Armazena como string no localStorage
+  localStorage.setItem("backgroundImage", imageUrl);
+  localStorage.setItem("lastFetchTime", currentTime.toString()); // Armazena como string no localStorage
 
   return imageUrl;
 };
 
-
 // Função para obter o versículo da Bíblia e armazenar no localStorage
 export const fetchBibleVerse = async () => {
-  const cachedVerse = localStorage.getItem('bibleVerse');
-  const lastFetchTime = localStorage.getItem('lastVerseFetchTime');
-  const currentTime = Date.now(); // Timestamp atual
+  const cachedVerse = localStorage.getItem("bibleVerse");
+  const lastFetchTime = localStorage.getItem("lastVerseFetchTime");
+  const currentTime = Date.now();
 
-  // Convertendo 'lastFetchTime' de string para número
-  const lastFetchTimeNumber = Number(lastFetchTime); // Solução para o erro
-
-  // Se o versículo foi buscado há menos de 6 horas, retorna o cache
-  if (cachedVerse && lastFetchTimeNumber && (currentTime - lastFetchTimeNumber) < SIX_HOURS) {
+  if (
+    cachedVerse &&
+    Number(lastFetchTime) &&
+    currentTime - Number(lastFetchTime) < SIX_HOURS
+  ) {
     return cachedVerse;
   }
 
-  // Caso contrário, faz uma nova requisição
   const response = await axios.get(
-    `https://www.abibliadigital.com.br/api/verses/nvi/random`
+    "https://www.abibliadigital.com.br/api/verses/nvi/random"
   );
   const verseText: string = response.data.text;
   const verseBook: string = response.data.book.name;
@@ -56,12 +68,11 @@ export const fetchBibleVerse = async () => {
   const responseData = `${verseText} ${verseBook} ${verseChapter}:${verseNumber}`;
 
   // Armazena o novo versículo no localStorage e atualiza o timestamp
-  localStorage.setItem('bibleVerse', responseData);
-  localStorage.setItem('lastVerseFetchTime', currentTime.toString()); // Armazena como string no localStorage
+  localStorage.setItem("bibleVerse", responseData);
+  localStorage.setItem("lastVerseFetchTime", currentTime.toString()); // Armazena como string no localStorage
 
-  return responseData
+  return responseData;
 };
-
 
 export const fetchBibliVerseButton = async () => {
   const response = await axios.get(
@@ -75,14 +86,12 @@ export const fetchBibliVerseButton = async () => {
 
   const responseData = `${verseText} ${verseBook} ${verseChapter}:${verseNumber}`;
 
-  return responseData
-}
-
+  return responseData;
+};
 
 // export const fetchBibleVerseSearch = async (param) => {
 
 // }
-
 
 // export const fetchSearchResults = async (query) => {
 //   try {

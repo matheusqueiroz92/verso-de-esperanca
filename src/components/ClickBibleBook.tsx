@@ -1,37 +1,34 @@
-import { useParams } from 'react-router-dom';
-import { useEffect, useState } from 'react';
-import axios from 'axios';
+import { useParams } from "react-router-dom";
+import { useEffect, useState } from "react";
+import axios from "axios";
+import { Card } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Loader2 } from "lucide-react";
 
-interface verseType {
-  number: number,
-  text: string
+interface VerseType {
+  number: number;
+  text: string;
 }
 
 export default function ClickBibleBook() {
-  const { abbrevBook, chapterNumber } = useParams<{ abbrevBook: string; chapterNumber: string }>();
-  const [verses, setVerses] = useState<verseType[]>([]);
-  const [bookName, setBookName] = useState('');
+  const { abbrevBook, chapterNumber } = useParams();
+  const [verses, setVerses] = useState<VerseType[]>([]);
+  const [bookName, setBookName] = useState("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!abbrevBook || !chapterNumber) {
-      return;
-    }
+    if (!abbrevBook || !chapterNumber) return;
 
     const fetchChapterVerses = async () => {
       setLoading(true);
       try {
-        // Faz uma requisição à API para buscar os versículos de um capítulo
         const response = await axios.get(
           `https://www.abibliadigital.com.br/api/verses/nvi/${abbrevBook}/${chapterNumber}/`
         );
-        setVerses(response.data.verses); // Supondo que a resposta tenha uma chave 'verses'
+        setVerses(response.data.verses);
         setBookName(response.data.book.name);
-        console.log(response.data);
-        
-        
       } catch (error) {
-        console.error('Erro ao buscar versículos:', error);
+        console.error("Erro ao buscar versículos:", error);
       }
       setLoading(false);
     };
@@ -40,17 +37,33 @@ export default function ClickBibleBook() {
   }, [abbrevBook, chapterNumber]);
 
   return (
-    <div className="chapter-page">
-      <h2>{bookName} - Capítulo {chapterNumber}</h2>
-      {loading ? (
-        <p>Carregando...</p>
-      ) : (
-        verses.map((verse, index) => (
-          <p key={index}>
-            {verse.number}. {verse.text}
-          </p>
-        ))
-      )}
+    <div className="min-h-screen bg-gradient-to-b from-slate-900 to-slate-800 p-6">
+      <div className="max-w-4xl mx-auto">
+        <h2 className="text-2xl md:text-3xl font-bold text-white mb-6">
+          {bookName} - Capítulo {chapterNumber}
+        </h2>
+
+        {loading ? (
+          <div className="flex items-center justify-center py-12">
+            <Loader2 className="h-8 w-8 animate-spin text-white" />
+          </div>
+        ) : (
+          <ScrollArea className="h-[calc(100vh-200px)]">
+            <Card className="bg-white/10 backdrop-blur border-white/20">
+              <div className="p-6 space-y-4">
+                {verses.map((verse, index) => (
+                  <div key={index} className="flex gap-4 text-white">
+                    <span className="text-white/60 font-medium min-w-[24px]">
+                      {verse.number}
+                    </span>
+                    <p className="text-white/90">{verse.text}</p>
+                  </div>
+                ))}
+              </div>
+            </Card>
+          </ScrollArea>
+        )}
+      </div>
     </div>
   );
 }
