@@ -1,17 +1,31 @@
 import { useEffect, useState } from "react";
-import { fetchBibleVerse, fetchBibliVerseButton } from "../utils/fetchApi";
+import { fetchBibleVerse } from "../utils/fetchApi";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
 export default function BibleVerse() {
   const [verse, setVerse] = useState("");
   const [copied, setCopied] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    const loadVerse = async () => {
+  const loadVerse = async (ignoreCache = false) => {
+    setIsLoading(true);
+    try {
+      // Se ignoreCache for true, remover o cache antes de buscar
+      if (ignoreCache) {
+        localStorage.removeItem("bibleVerse");
+        localStorage.removeItem("lastVerseFetchTime");
+      }
       const verse = await fetchBibleVerse();
       setVerse(verse);
-    };
+    } catch (error) {
+      console.error("Erro ao carregar versículo:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
     loadVerse();
   }, []);
 
@@ -20,6 +34,10 @@ export default function BibleVerse() {
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     });
+  };
+
+  const handleNewVerse = () => {
+    loadVerse(true); // Passa true para ignorar o cache
   };
 
   return (
@@ -39,14 +57,12 @@ export default function BibleVerse() {
       </Card>
 
       <Button
-        onClick={async () => {
-          const newVerse = await fetchBibliVerseButton();
-          setVerse(newVerse);
-        }}
+        onClick={handleNewVerse}
         variant="outline"
         className="bg-black/30 border-white/50 text-white hover:bg-black/50"
+        disabled={isLoading}
       >
-        Gerar outro versículo
+        {isLoading ? "Gerando..." : "Gerar outro versículo"}
       </Button>
     </div>
   );

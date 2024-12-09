@@ -1,25 +1,59 @@
 import axios from "axios";
 
-const SIX_HOURS = 6 * 60 * 1000; // 6 horas em milissegundos
+interface AxiosConfig {
+  headers: {
+    "api-key": string;
+  };
+}
 
-// const API_KEY = "SUA_CHAVE_API";
+interface BibleBook {
+  id: string;
+  name: string;
+}
 
-// const config = {
-//   headers: {
-//     Authorization: `Bearer ${API_KEY}`,
-//   },
-// };
+interface BibleChapter {
+  id: string;
+  reference: string;
+}
 
-// Função para obter a imagem da Unsplash e armazenar no localStorage
-export const fetchBackgroundImage = async () => {
+interface BibleVerse {
+  id: string;
+  reference: string;
+  content: string;
+}
+
+interface SearchVerse {
+  text: string;
+  reference: string;
+}
+
+interface APIResponse<T> {
+  data: T;
+}
+
+interface UnsplashResponse {
+  urls: {
+    full: string;
+  };
+}
+
+const API_KEY = "af8b25f22a16a3b76ad6744bff1e8950";
+const BIBLE_ID = "90799bb5b996fddc-01";
+const SIX_HOURS = 6 * 60 * 1000;
+
+const config: AxiosConfig = {
+  headers: {
+    "api-key": API_KEY,
+  },
+};
+
+export const fetchBackgroundImage = async (): Promise<string> => {
   const cachedImage = localStorage.getItem("backgroundImage");
   const lastFetchTime = localStorage.getItem("lastFetchTime");
-  const currentTime = Date.now(); // Timestamp atual
+  const currentTime = Date.now();
 
-  // Convertendo 'lastFetchTime' de string para número
-  const lastFetchTimeNumber = Number(lastFetchTime); // Solução para o erro
+  const lastFetchTimeNumber = Number(lastFetchTime);
 
-  // Se a última atualização foi há menos de 6 horas, retorna a imagem do cache
   if (
     cachedImage &&
     lastFetchTimeNumber &&
@@ -28,23 +62,34 @@ export const fetchBackgroundImage = async () => {
     return cachedImage;
   }
 
-  // Caso contrário, faz uma nova requisição
-  const response = await axios.get(
-    `https://api.unsplash.com/photos/random?query=nature&client_id=RzRfXcqiraotJx6lZPv_ia4WoND21jo_GW3w7ZDnywY`
-  );
-  const imageUrl = response.data.urls.full;
+  try {
+    const response = await axios.get<UnsplashResponse>(
+      "https://api.unsplash.com/photos/random?query=nature&client_id=RzRfXcqiraotJx6lZPv_ia4WoND21jo_GW3w7ZDnywY"
+    );
+    const imageUrl = response.data.urls.full;
 
-  console.log(response);
+    localStorage.setItem("backgroundImage", imageUrl);
+    localStorage.setItem("lastFetchTime", currentTime.toString());
 
-  // Armazena a nova imagem no localStorage e atualiza o timestamp
-  localStorage.setItem("backgroundImage", imageUrl);
-  localStorage.setItem("lastFetchTime", currentTime.toString()); // Armazena como string no localStorage
-
-  return imageUrl;
+    return imageUrl;
+  } catch (error) {
+    console.error("Erro ao buscar imagem:", error);
+    return "";
+  }
 };
 
-// Função para obter o versículo da Bíblia e armazenar no localStorage
-export const fetchBibleVerse = async () => {
+export const fetchBibleVerse = async (): Promise<string> => {
+  const cleanVerseText = (htmlText: string): string => {
+    // Remove todas as tags HTML exceto o conteúdo
+    const textWithoutTags = htmlText.replace(/<[^>]*>/g, "");
+
+    // Remove espaços extras e quebras de linha
+    const cleanText = textWithoutTags.trim().replace(/\s+/g, " ");
+
+    // Remove "data added" e referências duplicadas
+    return cleanText.replace(/\[.*?\]/g, "").replace(/\s+/g, " ");
+  };
+
   const cachedVerse = localStorage.getItem("bibleVerse");
   const lastFetchTime = localStorage.getItem("lastVerseFetchTime");
   const currentTime = Date.now();
@@ -57,59 +102,89 @@ export const fetchBibleVerse = async () => {
     return cachedVerse;
   }
 
-  const response = await axios.get(
-    "https://www.abibliadigital.com.br/api/verses/nvi/random"
-  );
-  const verseText: string = response.data.text;
-  const verseBook: string = response.data.book.name;
-  const verseChapter: number = response.data.chapter;
-  const verseNumber: number = response.data.number;
+  try {
+    const booksResponse = await axios.get<APIResponse<BibleBook[]>>(
+      `https://api.scripture.api.bible/v1/bibles/${BIBLE_ID}/books`,
+      config
+    );
+    const books = booksResponse.data.data;
+    const randomBookIndex = Math.floor(Math.random() * books.length);
+    const randomBook = books[randomBookIndex];
 
-  const responseData = `${verseText} ${verseBook} ${verseChapter}:${verseNumber}`;
+    const chaptersResponse = await axios.get<APIResponse<BibleChapter[]>>(
+      `https://api.scripture.api.bible/v1/bibles/${BIBLE_ID}/books/${randomBook.id}/chapters`,
+      config
+    );
+    const chapters = chaptersResponse.data.data;
+    const randomChapterIndex = Math.floor(Math.random() * chapters.length);
+    const randomChapter = chapters[randomChapterIndex];
 
-  // Armazena o novo versículo no localStorage e atualiza o timestamp
-  localStorage.setItem("bibleVerse", responseData);
-  localStorage.setItem("lastVerseFetchTime", currentTime.toString()); // Armazena como string no localStorage
+    const versesResponse = await axios.get<APIResponse<BibleVerse[]>>(
+      `https://api.scripture.api.bible/v1/bibles/${BIBLE_ID}/chapters/${randomChapter.id}/verses`,
+      config
+    );
+    const verses = versesResponse.data.data;
+    const randomVerseIndex = Math.floor(Math.random() * verses.length);
+    const randomVerse = verses[randomVerseIndex];
 
-  return responseData;
+    const verseResponse = await axios.get<APIResponse<BibleVerse>>(
+      `https://api.scripture.api.bible/v1/bibles/${BIBLE_ID}/verses/${randomVerse.id}`,
+      config
+    );
+    const verse = verseResponse.data.data;
+
+    const cleanContent = cleanVerseText(verse.content);
+    const responseData = `${cleanContent} - ${randomBook.name} ${verse.reference}`;
+
+    localStorage.setItem("bibleVerse", responseData);
+    localStorage.setItem("lastVerseFetchTime", currentTime.toString());
+
+    return responseData;
+  } catch (error) {
+    console.error("Erro ao buscar versículo:", error);
+    return "Não foi possível carregar o versículo.";
+  }
 };
 
-export const fetchBibliVerseButton = async () => {
-  const response = await axios.get(
-    `https://www.abibliadigital.com.br/api/verses/nvi/random`
-  );
-
-  const verseText: string = response.data.text;
-  const verseBook: string = response.data.book.name;
-  const verseChapter: number = response.data.chapter;
-  const verseNumber: number = response.data.number;
-
-  const responseData = `${verseText} ${verseBook} ${verseChapter}:${verseNumber}`;
-
-  return responseData;
+export const fetchBibliVerseButton = async (): Promise<string> => {
+  return fetchBibleVerse();
 };
 
-// export const fetchBibleVerseSearch = async (param) => {
+export const searchVerses = async (query: string): Promise<SearchVerse[]> => {
+  try {
+    const response = await axios.get<APIResponse<{ verses: SearchVerse[] }>>(
+      `https://api.scripture.api.bible/v1/bibles/${BIBLE_ID}/search?query=${query}`,
+      config
+    );
 
-// }
+    return response.data.data.verses.map((verse) => ({
+      text: verse.text,
+      reference: verse.reference,
+      book: {
+        name: verse.reference.split(" ")[0],
+      },
+      chapter: parseInt(verse.reference.split(":")[0].split(" ").pop() || "0"),
+      number: parseInt(verse.reference.split(":")[1] || "0"),
+    }));
+  } catch (error) {
+    console.error("Erro ao buscar versículos:", error);
+    return [];
+  }
+};
 
-// export const fetchSearchResults = async (query) => {
-//   try {
-//     // Enviar a requisição com o termo no corpo (método POST)
-//     const response = await axios.post(
-//       'https://www.abibliadigital.com.br/api/verses/search',
-//       {
-//           version: "nvi",
-//           search: query
-//       },// O termo de busca enviado no corpo da requisição
-//       {
-//         headers: {
-//           'Content-Type': 'application/json'
-//         }
-//       }
-//     );
-//     setResults(response.data.verses); // A API pode retornar os resultados sob a chave 'verses'
-//   } catch (error) {
-//     console.error('Erro ao buscar versículos:', error);
-//   }
-// }
+export const getChapterVerses = async (
+  bookId: string,
+  chapterNumber: number
+): Promise<BibleVerse | null> => {
+  try {
+    const response = await axios.get<APIResponse<BibleVerse>>(
+      `https://api.scripture.api.bible/v1/bibles/${BIBLE_ID}/chapters/${bookId}.${chapterNumber}`,
+      config
+    );
+
+    return response.data.data;
+  } catch (error) {
+    console.error("Erro ao buscar capítulo:", error);
+    return null;
+  }
+};
