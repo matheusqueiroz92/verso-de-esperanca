@@ -29,6 +29,7 @@ export const fetchBackgroundImage = async () => {
   return imageUrl;
 };
 
+
 // Função para obter o versículo da Bíblia e armazenar no localStorage
 export const fetchBibleVerse = async () => {
   const cachedVerse = localStorage.getItem('bibleVerse');
@@ -61,6 +62,7 @@ export const fetchBibleVerse = async () => {
   return responseData
 };
 
+
 export const fetchBibliVerseButton = async () => {
   const response = await axios.get(
     `https://www.abibliadigital.com.br/api/verses/nvi/random`
@@ -79,5 +81,26 @@ export const fetchBibliVerseButton = async () => {
 
 // export const fetchBibleVerseSearch = async (param) => {
 
+// }
 
+
+// export const fetchSearchResults = async (query) => {
+//   try {
+//     // Enviar a requisição com o termo no corpo (método POST)
+//     const response = await axios.post(
+//       'https://www.abibliadigital.com.br/api/verses/search',
+//       {
+//           version: "nvi",
+//           search: query
+//       },// O termo de busca enviado no corpo da requisição
+//       {
+//         headers: {
+//           'Content-Type': 'application/json'
+//         }
+//       }
+//     );
+//     setResults(response.data.verses); // A API pode retornar os resultados sob a chave 'verses'
+//   } catch (error) {
+//     console.error('Erro ao buscar versículos:', error);
+//   }
 // }
