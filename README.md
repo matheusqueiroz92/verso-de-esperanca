@@ -1,42 +1,135 @@
-# Verso de Esperança
+# Verso da Esperança
 
-Este é um projeto feito em React, utilizando o Vite, e consiste em uma aplicação que mostra versículos bíblicos vindos de uma API (A Bíblia Online Digital), além de obter imagens, que são utilizadas como background, vindas de uma outra API Unsplash.
+<p align="center">
+  <img src="/screenshots/banner.png" alt="Verso da Esperança" width="600"/>
+</p>
 
-Os versículos bíblicos são atualizados juntamente com as imagens de fundo a cada 6 horas.
+## 📖 Sobre o Projeto
 
-Além disso, a aplicação conta com um relógio que marca o dia e a hora.
+Verso da Esperança é uma aplicação web que oferece uma experiência interativa de leitura bíblica. Com interface moderna e intuitiva, permite aos usuários explorar versículos, realizar buscas específicas, marcar favoritos e navegar facilmente pelos diferentes livros e capítulos da Bíblia.
 
+## ✨ Features
 
-## Processo de Desenvolvimento
+- 🎲 Geração aleatória de versículos
+- 🔍 Busca por palavras-chave
+- 📚 Navegação completa pela Bíblia
+- ⭐ Sistema de favoritos
+- 📋 Cópia rápida de versículos
+- ⏰ Relógio em tempo real
+- 🖼️ Planos de fundo dinâmicos via Unsplash
 
-### Criando a aplicação com Vite 
+## 🛠️ Tecnologias
 
-Para criar a aplicação, digite no terminal o comando `npx create vite@latest verso-de-esperanca --template react`. Esse procedimento irá criar a aplicação utilizando o Framework Vite, na versão mais recente (@latest) e utilizando o React. Logo Após esse procedimento, será criado um diretório chamado verso-de-esperanca.
+- React
+- TypeScript
+- Vite
+- Tailwind CSS
+- shadcn/ui
+- React Router DOM
 
-Entre no diretório criado digitando o comando `cd verso-de-esperanca`
+## 🚀 Como executar
 
-### Instalando as dependências e iniciando a aplicação
+1. Clone o repositório:
 
-Dentro do diretório da aplicação, abra o terminal e digite o comando `npm install` para instalar as dependências do projeto.
+```bash
+git clone https://github.com/seu-usuario/verso-de-esperanca.git
+```
 
-Depois disso, inicie a aplicação digitando o comando `npm run dev` no terminal.
+2. Instale as dependências:
 
-Abra o seu navegador e digite a URL http://localhost:5173/. Pronto! Sua aplicação já está rodando.
+```bash
+cd verso-de-esperanca
+npm install
+```
 
-### Criando arquivos e diretórios
+3. Execute o projeto
 
-Tudo pronto para começar! Agora já pode abrir o seu editor de código (neste projeto foi utilizado o Visual Studio Code). Para abrir o VS Code diretamente no terminal, digite o comando `code .`.
+```bash
+npm run dev
+```
 
--- Observação: é importante que esteja acessando o terminal dentro do diretório da aplicação criada. --
+## 📱 Componentes Principais
 
-Dentro do diretpório src altere o arquivo App.jsx
+### Layout
 
-Crie um novo diretório dentro de src chamado componentes <code>src/components</code>
+O componente principal que estrutura a aplicação, contendo:
 
+- Header com sistema de busca
+- Área principal para exibição de conteúdo
+- Navegação lateral
+- Rodapé informativo
 
-- Cadastro na API Unsplash para (colocar chave de acesso no código)
+### BibleVerse
 
-- Criar arquivo fetchApi
+Responsável pela exibição de versículos aleatórios:
 
-- Criar componentes
+- Botão para gerar novo versículo
+- Sistema de favoritos
+- Função de cópia
 
+### SearchResults
+
+Interface de resultados de busca:
+
+- Listagem de versículos encontrados
+- Navegação para capítulos
+- Feedback visual de busca
+
+### ClickBibleBook
+
+Visualização de capítulos completos:
+
+- Navegação entre capítulos
+- Sistema de favoritos por versículo
+- Função de cópia de capítulo
+
+### SideBar
+
+Navegação principal:
+
+- Organização por testamentos
+- Lista de livros
+- Acesso rápido a capítulos
+
+## 🎨 Interface
+
+A aplicação utiliza um design moderno com:
+
+- Tema escuro
+- Efeitos de glass morphism
+- Animações suaves
+- Interface responsiva
+- Feedback visual de ações
+
+## 📝 Funcionalidades Implementadas
+
+- [x] Navegação completa pela Bíblia
+- [x] Sistema de busca
+- [x] Versículos aleatórios
+- [x] Sistema de favoritos
+- [x] Cópia de versículos
+- [x] Navegação entre capítulos
+- [x] Planos de fundo dinâmicos
+
+## 🔄 Próximas Atualizações
+
+- [ ] Modo offline
+- [ ] Múltiplos temas
+- [ ] Histórico de leitura
+- [ ] Compartilhamento social
+- [ ] Planos de leitura
+- [ ] Anotações pessoais
+
+## 👤 Autor
+
+Matheus Queiroz
+
+## 📄 Licença
+
+Este projeto está sob a licença MIT.
+
+---
+
+<p align="center">
+Desenvolvido por Matheus Queiroz
+</p>

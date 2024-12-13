@@ -13,6 +13,8 @@ import {
 } from "lucide-react";
 import { bibleData } from "@/data/bible";
 import { toast } from "@/hooks/use-toast";
+import { Bookmark, BookmarkX } from "lucide-react";
+import { useFavorites } from "@/hooks/useFavorites";
 
 interface ChapterContent {
   book: string;
@@ -30,10 +32,12 @@ export default function ClickBibleBook() {
   );
   const [loading, setLoading] = useState(true);
   const [copying, setCopying] = useState(false);
+  const { isFavorite, addFavorite, removeFavorite } = useFavorites();
   const navigate = useNavigate();
 
   useEffect(() => {
     if (!bookId || !chapterId) {
+      navigate("/");
       return;
     }
 
@@ -66,7 +70,7 @@ export default function ClickBibleBook() {
     } finally {
       setLoading(false);
     }
-  }, [bookId, chapterId]);
+  }, [bookId, chapterId, navigate]);
 
   const handleNavigateChapter = (direction: "prev" | "next") => {
     if (!bookId || !chapterId || !chapterContent) return;
@@ -230,14 +234,53 @@ export default function ClickBibleBook() {
             <Card className="bg-white/10 backdrop-blur border-white/20">
               <div className="p-6">
                 <div className="space-y-4">
-                  {chapterContent.verses.map((verse) => (
-                    <div key={verse.number} className="flex gap-4 text-white">
-                      <span className="text-white/60 font-medium min-w-[24px]">
-                        {verse.number}
-                      </span>
-                      <p className="text-white/90">{verse.text}</p>
-                    </div>
-                  ))}
+                  {chapterContent.verses.map((verse) => {
+                    // Early return se não tiver bookId
+                    if (!bookId) return null;
+
+                    const favoriteId = `${bookId}-${chapterContent.chapter}-${verse.number}`;
+                    const verseIsFavorite = isFavorite(
+                      bookId,
+                      chapterContent.chapter,
+                      verse.number
+                    );
+
+                    return (
+                      <div
+                        key={verse.number}
+                        className="flex gap-4 text-white group"
+                      >
+                        <span className="text-white/60 font-medium min-w-[24px]">
+                          {verse.number}
+                        </span>
+                        <p className="text-white/90 flex-1">{verse.text}</p>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={() => {
+                            if (verseIsFavorite) {
+                              removeFavorite(favoriteId);
+                            } else {
+                              addFavorite({
+                                bookId,
+                                chapter: chapterContent.chapter,
+                                verse: verse.number,
+                                text: verse.text,
+                                reference: `${chapterContent.book} ${chapterContent.chapter}:${verse.number}`,
+                              });
+                            }
+                          }}
+                        >
+                          {verseIsFavorite ? (
+                            <BookmarkX className="h-4 w-4 text-yellow-500" />
+                          ) : (
+                            <Bookmark className="h-4 w-4" />
+                          )}
+                        </Button>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             </Card>

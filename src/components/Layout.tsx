@@ -4,7 +4,7 @@ import BibleVerse from "@/components/BibleVerse";
 import SideBar from "@/components/SideBar";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Search } from "lucide-react";
+import { Bookmark, Search } from "lucide-react";
 import BackgroundImage from "./BackgroundImage";
 
 export default function Layout() {
@@ -13,6 +13,7 @@ export default function Layout() {
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    //O método trim() remove os espaços em branco do texto.
     if (searchQuery.trim()) {
       navigate(`/search?query=${encodeURIComponent(searchQuery.trim())}`);
     }
@@ -53,6 +54,14 @@ export default function Layout() {
                 <Search className="h-4 w-4" />
               </Button>
             </form>
+            <Button
+              variant="ghost"
+              className="text-white/70 hover:text-white"
+              onClick={() => navigate("/favorites")}
+            >
+              <Bookmark className="h-4 w-4 mr-2" />
+              Favoritos
+            </Button>
           </div>
         </header>
 

@@ -3,6 +3,7 @@ import Layout from "./components/Layout";
 import SearchResults from "./components/SearchResults";
 import ClickBibleBook from "./components/ClickBibleBook";
 import { ThemeProvider } from "./components/ui/theme-provider";
+import Favorites from "./components/Favorites";
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
             path="/book/:bookId/chapter/:chapterId"
             element={<ClickBibleBook />}
           />
+          <Route path="/favorites" element={<Favorites />} />
         </Routes>
       </Router>
     </ThemeProvider>

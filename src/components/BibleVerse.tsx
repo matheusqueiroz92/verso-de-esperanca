@@ -2,17 +2,22 @@ import { useEffect, useState, useCallback } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
-import { Copy, Check } from "lucide-react";
+import { Copy, Check, Bookmark, BookmarkX } from "lucide-react";
 import { bibleData } from "@/data/bible";
+import { useFavorites } from "@/hooks/useFavorites";
 
 interface RandomVerse {
   text: string;
   reference: string;
+  bookId: string;
+  chapter: number;
+  verse: number;
 }
 
 export default function BibleVerse() {
   const [verse, setVerse] = useState<RandomVerse | null>(null);
   const [copying, setCopying] = useState(false);
+  const { isFavorite, addFavorite, removeFavorite } = useFavorites();
 
   const getRandomVerse = useCallback(() => {
     const randomBook = bibleData[Math.floor(Math.random() * bibleData.length)];
@@ -28,6 +33,9 @@ export default function BibleVerse() {
     return {
       text: randomVerse.text,
       reference: `${randomBook.name} ${randomChapter.chapter}:${randomVerse.number}`,
+      bookId: randomBook.id,
+      chapter: randomChapter.chapter,
+      verse: randomVerse.number,
     };
   }, []);
 
@@ -47,7 +55,6 @@ export default function BibleVerse() {
         description: "O texto foi copiado para a área de transferência.",
       });
 
-      // Mantem o estado "copying" por 2 segundos
       setTimeout(() => {
         setCopying(false);
       }, 2000);
@@ -60,6 +67,37 @@ export default function BibleVerse() {
         variant: "destructive",
       });
       setCopying(false);
+    }
+  };
+
+  const handleFavorite = () => {
+    if (!verse) return;
+
+    const isCurrentlyFavorite = isFavorite(
+      verse.bookId,
+      verse.chapter,
+      verse.verse
+    );
+    const favoriteId = `${verse.bookId}-${verse.chapter}-${verse.verse}`;
+
+    if (isCurrentlyFavorite) {
+      removeFavorite(favoriteId);
+      toast({
+        title: "Removido dos favoritos",
+        description: "Versículo removido dos seus favoritos",
+      });
+    } else {
+      addFavorite({
+        bookId: verse.bookId,
+        chapter: verse.chapter,
+        verse: verse.verse,
+        text: verse.text,
+        reference: verse.reference,
+      });
+      toast({
+        title: "Adicionado aos favoritos",
+        description: "Versículo adicionado aos seus favoritos",
+      });
     }
   };
 
@@ -79,27 +117,50 @@ export default function BibleVerse() {
               <p className="text-white/70 text-center mb-4">
                 {verse.reference}
               </p>
-              <Button
-                variant="ghost"
-                size="default"
-                className="mx-auto block text-white/70 hover:text-white hover:bg-white/10 min-w-[120px] transition-all duration-200"
-                onClick={copyToClipboard}
-                disabled={copying}
-              >
-                <span className="flex items-center">
-                  {copying ? (
-                    <>
-                      <Check className="h-4 w-4 mr-2" />
-                      <span>Copiado!</span>
-                    </>
-                  ) : (
-                    <>
-                      <Copy className="h-4 w-4 mr-2" />
-                      <span>Copiar versículo</span>
-                    </>
-                  )}
-                </span>
-              </Button>
+              <div className="flex justify-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="default"
+                  className="text-white/70 hover:text-white hover:bg-white/10 min-w-[120px] transition-all duration-200"
+                  onClick={copyToClipboard}
+                  disabled={copying}
+                >
+                  <span className="flex items-center">
+                    {copying ? (
+                      <>
+                        <Check className="h-4 w-4 mr-2" />
+                        <span>Copiado!</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="h-4 w-4 mr-2" />
+                        <span>Copiar</span>
+                      </>
+                    )}
+                  </span>
+                </Button>
+
+                <Button
+                  variant="ghost"
+                  size="default"
+                  className="text-white/70 hover:text-white hover:bg-white/10 transition-all duration-200"
+                  onClick={handleFavorite}
+                >
+                  <span className="flex items-center">
+                    {isFavorite(verse.bookId, verse.chapter, verse.verse) ? (
+                      <>
+                        <BookmarkX className="h-4 w-4 mr-2 text-yellow-500" />
+                        <span>Remover dos favoritos</span>
+                      </>
+                    ) : (
+                      <>
+                        <Bookmark className="h-4 w-4 mr-2" />
+                        <span>Adicionar aos favoritos</span>
+                      </>
+                    )}
+                  </span>
+                </Button>
+              </div>
             </>
           ) : (
             <p className="text-white/70 text-center">Carregando versículo...</p>
