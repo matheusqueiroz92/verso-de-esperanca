@@ -1,29 +1,25 @@
+import { api } from "@/lib/api";
 import axios from "axios";
-
-interface AxiosConfig {
-  headers: {
-    "api-key": string;
-  };
-}
 
 interface BibleBook {
   id: string;
+  bibleId: string;
+  abbreviation: string;
   name: string;
+  nameLong: string;
 }
 
 interface BibleChapter {
   id: string;
+  bibleId: string;
+  number: string;
+  bookId: string;
   reference: string;
 }
 
 interface BibleVerse {
   id: string;
-  reference: string;
   content: string;
-}
-
-interface SearchVerse {
-  text: string;
   reference: string;
 }
 
@@ -31,20 +27,18 @@ interface APIResponse<T> {
   data: T;
 }
 
-interface UnsplashResponse {
-  urls: {
-    full: string;
-  };
+interface SearchVerse {
+  text: string;
+  reference: string;
 }
 
-const API_KEY = "af8b25f22a16a3b76ad6744bff1e8950";
 const BIBLE_ID = "90799bb5b996fddc-01";
 const SIX_HOURS = 6 * 60 * 1000;
 
-const config: AxiosConfig = {
-  headers: {
-    "api-key": API_KEY,
-  },
+const cleanVerseText = (htmlText: string): string => {
+  const textWithoutTags = htmlText.replace(/<[^>]*>/g, "");
+  const cleanText = textWithoutTags.trim().replace(/\s+/g, " ");
+  return cleanText;
 };
 
 export const fetchBackgroundImage = async (): Promise<string> => {
@@ -52,18 +46,16 @@ export const fetchBackgroundImage = async (): Promise<string> => {
   const lastFetchTime = localStorage.getItem("lastFetchTime");
   const currentTime = Date.now();
 
-  const lastFetchTimeNumber = Number(lastFetchTime);
-
   if (
     cachedImage &&
-    lastFetchTimeNumber &&
-    currentTime - lastFetchTimeNumber < SIX_HOURS
+    Number(lastFetchTime) &&
+    currentTime - Number(lastFetchTime) < SIX_HOURS
   ) {
     return cachedImage;
   }
 
   try {
-    const response = await axios.get<UnsplashResponse>(
+    const response = await axios.get(
       "https://api.unsplash.com/photos/random?query=nature&client_id=RzRfXcqiraotJx6lZPv_ia4WoND21jo_GW3w7ZDnywY"
     );
     const imageUrl = response.data.urls.full;
@@ -79,17 +71,6 @@ export const fetchBackgroundImage = async (): Promise<string> => {
 };
 
 export const fetchBibleVerse = async (): Promise<string> => {
-  const cleanVerseText = (htmlText: string): string => {
-    // Remove todas as tags HTML exceto o conteúdo
-    const textWithoutTags = htmlText.replace(/<[^>]*>/g, "");
-
-    // Remove espaços extras e quebras de linha
-    const cleanText = textWithoutTags.trim().replace(/\s+/g, " ");
-
-    // Remove "data added" e referências duplicadas
-    return cleanText.replace(/\[.*?\]/g, "").replace(/\s+/g, " ");
-  };
-
   const cachedVerse = localStorage.getItem("bibleVerse");
   const lastFetchTime = localStorage.getItem("lastVerseFetchTime");
   const currentTime = Date.now();
@@ -103,36 +84,34 @@ export const fetchBibleVerse = async (): Promise<string> => {
   }
 
   try {
-    const booksResponse = await axios.get<APIResponse<BibleBook[]>>(
-      `https://api.scripture.api.bible/v1/bibles/${BIBLE_ID}/books`,
-      config
+    const booksResponse = await api.get<APIResponse<BibleBook[]>>(
+      `/bibles/${BIBLE_ID}/books`
     );
+
     const books = booksResponse.data.data;
-    const randomBookIndex = Math.floor(Math.random() * books.length);
-    const randomBook = books[randomBookIndex];
+    const randomBook = books[Math.floor(Math.random() * books.length)];
 
-    const chaptersResponse = await axios.get<APIResponse<BibleChapter[]>>(
-      `https://api.scripture.api.bible/v1/bibles/${BIBLE_ID}/books/${randomBook.id}/chapters`,
-      config
+    const chaptersResponse = await api.get<APIResponse<BibleChapter[]>>(
+      `/bibles/${BIBLE_ID}/books/${randomBook.id}/chapters`
     );
-    const chapters = chaptersResponse.data.data;
-    const randomChapterIndex = Math.floor(Math.random() * chapters.length);
-    const randomChapter = chapters[randomChapterIndex];
 
-    const versesResponse = await axios.get<APIResponse<BibleVerse[]>>(
-      `https://api.scripture.api.bible/v1/bibles/${BIBLE_ID}/chapters/${randomChapter.id}/verses`,
-      config
+    const chapters = chaptersResponse.data.data.filter(
+      (chapter) => chapter.number !== "intro"
     );
+    const randomChapter = chapters[Math.floor(Math.random() * chapters.length)];
+
+    const versesResponse = await api.get<APIResponse<BibleVerse[]>>(
+      `/bibles/${BIBLE_ID}/chapters/${randomChapter.id}/verses`
+    );
+
     const verses = versesResponse.data.data;
-    const randomVerseIndex = Math.floor(Math.random() * verses.length);
-    const randomVerse = verses[randomVerseIndex];
+    const randomVerse = verses[Math.floor(Math.random() * verses.length)];
 
-    const verseResponse = await axios.get<APIResponse<BibleVerse>>(
-      `https://api.scripture.api.bible/v1/bibles/${BIBLE_ID}/verses/${randomVerse.id}`,
-      config
+    const verseResponse = await api.get<APIResponse<BibleVerse>>(
+      `/bibles/${BIBLE_ID}/verses/${randomVerse.id}`
     );
-    const verse = verseResponse.data.data;
 
+    const verse = verseResponse.data.data;
     const cleanContent = cleanVerseText(verse.content);
     const responseData = `${cleanContent} - ${randomBook.name} ${verse.reference}`;
 
@@ -146,15 +125,10 @@ export const fetchBibleVerse = async (): Promise<string> => {
   }
 };
 
-export const fetchBibliVerseButton = async (): Promise<string> => {
-  return fetchBibleVerse();
-};
-
 export const searchVerses = async (query: string): Promise<SearchVerse[]> => {
   try {
-    const response = await axios.get<APIResponse<{ verses: SearchVerse[] }>>(
-      `https://api.scripture.api.bible/v1/bibles/${BIBLE_ID}/search?query=${query}`,
-      config
+    const response = await api.get<APIResponse<{ verses: SearchVerse[] }>>(
+      `/bibles/${BIBLE_ID}/search?query=${query}`
     );
 
     return response.data.data.verses.map((verse) => ({
@@ -163,8 +137,10 @@ export const searchVerses = async (query: string): Promise<SearchVerse[]> => {
       book: {
         name: verse.reference.split(" ")[0],
       },
-      chapter: parseInt(verse.reference.split(":")[0].split(" ").pop() || "0"),
-      number: parseInt(verse.reference.split(":")[1] || "0"),
+      chapter: Number.parseInt(
+        verse.reference.split(":")[0].split(" ").pop() || "0"
+      ),
+      number: Number.parseInt(verse.reference.split(":")[1] || "0"),
     }));
   } catch (error) {
     console.error("Erro ao buscar versículos:", error);
@@ -173,18 +149,31 @@ export const searchVerses = async (query: string): Promise<SearchVerse[]> => {
 };
 
 export const getChapterVerses = async (
-  bookId: string,
-  chapterNumber: number
+  chapterId: string
 ): Promise<BibleVerse | null> => {
   try {
-    const response = await axios.get<APIResponse<BibleVerse>>(
-      `https://api.scripture.api.bible/v1/bibles/${BIBLE_ID}/chapters/${bookId}.${chapterNumber}`,
-      config
+    const response = await api.get<APIResponse<BibleVerse>>(
+      `/bibles/${BIBLE_ID}/chapters/${chapterId}`
     );
 
     return response.data.data;
   } catch (error) {
     console.error("Erro ao buscar capítulo:", error);
     return null;
+  }
+};
+
+export const getBookChapters = async (
+  bookId: string
+): Promise<BibleChapter[]> => {
+  try {
+    const response = await api.get<APIResponse<BibleChapter[]>>(
+      `/bibles/${BIBLE_ID}/books/${bookId}/chapters`
+    );
+
+    return response.data.data.filter((chapter) => chapter.number !== "intro");
+  } catch (error) {
+    console.error("Erro ao buscar capítulos:", error);
+    return [];
   }
 };

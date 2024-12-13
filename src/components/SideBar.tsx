@@ -1,6 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
@@ -9,14 +14,95 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { ChevronRight, Menu } from "lucide-react";
-import { bibleBooks } from "../utils/bibleBooks";
+import { bibleData } from "@/data/bible";
 import { cn } from "@/lib/utils";
+
+// Livros corretos para cada testamento
+const BOOKS_VT = [
+  "GEN",
+  "EXO",
+  "LEV",
+  "NUM",
+  "DEU",
+  "JOS",
+  "JDG",
+  "RUT",
+  "1SA",
+  "2SA",
+  "1KI",
+  "2KI",
+  "1CH",
+  "2CH",
+  "EZR",
+  "NEH",
+  "EST",
+  "JOB",
+  "PSA",
+  "PRO",
+  "ECC",
+  "SNG",
+  "ISA",
+  "JER",
+  "LAM",
+  "EZK",
+  "DAN",
+  "HOS",
+  "JOL",
+  "AMO",
+  "OBA",
+  "JON",
+  "MIC",
+  "NAM",
+  "HAB",
+  "ZEP",
+  "HAG",
+  "ZEC",
+  "MAL",
+];
+
+const BOOKS_NT = [
+  "MAT",
+  "MRK",
+  "LUK",
+  "JHN",
+  "ACT",
+  "ROM",
+  "1CO",
+  "2CO",
+  "GAL",
+  "EPH",
+  "PHP",
+  "COL",
+  "1TH",
+  "2TH",
+  "1TI",
+  "2TI",
+  "TIT",
+  "PHM",
+  "HEB",
+  "JAS",
+  "1PE",
+  "2PE",
+  "1JN",
+  "2JN",
+  "3JN",
+  "JUD",
+  "REV",
+];
 
 export default function Sidebar() {
   const [expandedOldTestment, setExpandedOldTestment] = useState(false);
   const [expandedNewTestment, setExpandedNewTestment] = useState(false);
   const [expandedBook, setExpandedBook] = useState("");
   const navigate = useNavigate();
+
+  // Separar livros por testamento usando os IDs
+  const oldTestamentBooks = bibleData.filter((book) =>
+    BOOKS_VT.includes(book.id)
+  );
+  const newTestamentBooks = bibleData.filter((book) =>
+    BOOKS_NT.includes(book.id)
+  );
 
   return (
     <Sheet>
@@ -33,12 +119,11 @@ export default function Sidebar() {
         side="left"
         className="w-80 p-0 bg-black/90 border-r border-white/20"
       >
-        <ScrollArea className="h-full">
+        <SheetTitle className="text-xl font-bold text-center text-white p-6">
+          Bíblia Sagrada
+        </SheetTitle>
+        <ScrollArea className="h-[calc(100vh-5rem)]">
           <div className="p-6">
-            <h2 className="text-xl font-bold text-center text-white mb-6">
-              Bíblia Sagrada
-            </h2>
-
             <div className="space-y-4">
               <Collapsible
                 open={expandedOldTestment}
@@ -60,50 +145,44 @@ export default function Sidebar() {
                 </CollapsibleTrigger>
                 <CollapsibleContent>
                   <div className="mt-2 ml-4 space-y-1">
-                    {bibleBooks
-                      .filter((book) => book.testament === "VT")
-                      .map((book) => (
-                        <Collapsible key={book.name}>
-                          <CollapsibleTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              className="w-full justify-start text-sm text-white/80 hover:bg-white/10"
-                              onClick={() =>
-                                setExpandedBook(
-                                  expandedBook === book.name ? "" : book.name
-                                )
-                              }
-                            >
-                              {book.name}
-                            </Button>
-                          </CollapsibleTrigger>
-                          <CollapsibleContent className="ml-4">
-                            {expandedBook === book.name && (
-                              <div className="space-y-1">
-                                {Array.from({ length: book.chapters }).map(
-                                  (_, i) => (
-                                    <Button
-                                      key={i}
-                                      variant="ghost"
-                                      size="sm"
-                                      className="w-full justify-start text-xs text-white/70 hover:bg-white/10"
-                                      onClick={() =>
-                                        navigate(
-                                          `/book/${book.abbrev.pt}/chapter/${
-                                            i + 1
-                                          }`
-                                        )
-                                      }
-                                    >
-                                      Capítulo {i + 1}
-                                    </Button>
-                                  )
-                                )}
-                              </div>
-                            )}
-                          </CollapsibleContent>
-                        </Collapsible>
-                      ))}
+                    {oldTestamentBooks.map((book) => (
+                      <Collapsible key={book.id}>
+                        <CollapsibleTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            className="w-full justify-start text-sm text-white/80 hover:bg-white/10"
+                            onClick={() =>
+                              setExpandedBook(
+                                expandedBook === book.name ? "" : book.name
+                              )
+                            }
+                          >
+                            {book.name}
+                          </Button>
+                        </CollapsibleTrigger>
+                        <CollapsibleContent className="ml-4">
+                          {expandedBook === book.name && (
+                            <div className="space-y-1">
+                              {book.chapters.map((chapter) => (
+                                <Button
+                                  key={chapter.chapter}
+                                  variant="ghost"
+                                  size="sm"
+                                  className="w-full justify-start text-xs text-white/70 hover:bg-white/10"
+                                  onClick={() =>
+                                    navigate(
+                                      `/book/${book.id}/chapter/${chapter.chapter}`
+                                    )
+                                  }
+                                >
+                                  Capítulo {chapter.chapter}
+                                </Button>
+                              ))}
+                            </div>
+                          )}
+                        </CollapsibleContent>
+                      </Collapsible>
+                    ))}
                   </div>
                 </CollapsibleContent>
               </Collapsible>
@@ -128,50 +207,44 @@ export default function Sidebar() {
                 </CollapsibleTrigger>
                 <CollapsibleContent>
                   <div className="mt-2 ml-4 space-y-1">
-                    {bibleBooks
-                      .filter((book) => book.testament === "NT")
-                      .map((book) => (
-                        <Collapsible key={book.name}>
-                          <CollapsibleTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              className="w-full justify-start text-sm text-white/80 hover:bg-white/10"
-                              onClick={() =>
-                                setExpandedBook(
-                                  expandedBook === book.name ? "" : book.name
-                                )
-                              }
-                            >
-                              {book.name}
-                            </Button>
-                          </CollapsibleTrigger>
-                          <CollapsibleContent className="ml-4">
-                            {expandedBook === book.name && (
-                              <div className="space-y-1">
-                                {Array.from({ length: book.chapters }).map(
-                                  (_, i) => (
-                                    <Button
-                                      key={i}
-                                      variant="ghost"
-                                      size="sm"
-                                      className="w-full justify-start text-xs text-white/70 hover:bg-white/10"
-                                      onClick={() =>
-                                        navigate(
-                                          `/book/${book.abbrev.pt}/chapter/${
-                                            i + 1
-                                          }`
-                                        )
-                                      }
-                                    >
-                                      Capítulo {i + 1}
-                                    </Button>
-                                  )
-                                )}
-                              </div>
-                            )}
-                          </CollapsibleContent>
-                        </Collapsible>
-                      ))}
+                    {newTestamentBooks.map((book) => (
+                      <Collapsible key={book.id}>
+                        <CollapsibleTrigger asChild>
+                          <Button
+                            variant="ghost"
+                            className="w-full justify-start text-sm text-white/80 hover:bg-white/10"
+                            onClick={() =>
+                              setExpandedBook(
+                                expandedBook === book.name ? "" : book.name
+                              )
+                            }
+                          >
+                            {book.name}
+                          </Button>
+                        </CollapsibleTrigger>
+                        <CollapsibleContent className="ml-4">
+                          {expandedBook === book.name && (
+                            <div className="space-y-1">
+                              {book.chapters.map((chapter) => (
+                                <Button
+                                  key={chapter.chapter}
+                                  variant="ghost"
+                                  size="sm"
+                                  className="w-full justify-start text-xs text-white/70 hover:bg-white/10"
+                                  onClick={() =>
+                                    navigate(
+                                      `/book/${book.id}/chapter/${chapter.chapter}`
+                                    )
+                                  }
+                                >
+                                  Capítulo {chapter.chapter}
+                                </Button>
+                              ))}
+                            </div>
+                          )}
+                        </CollapsibleContent>
+                      </Collapsible>
+                    ))}
                   </div>
                 </CollapsibleContent>
               </Collapsible>

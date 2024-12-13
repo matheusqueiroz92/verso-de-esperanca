@@ -7,8 +7,6 @@ export default function BackgroundImage() {
   useEffect(() => {
     const loadImage = async () => {
       const image = await fetchBackgroundImage();
-      console.log(image);
-
       setImageUrl(image);
     };
     loadImage();

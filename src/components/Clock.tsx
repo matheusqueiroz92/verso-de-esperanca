@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react";
+import { Card } from "@/components/ui/card";
+import { Clock as ClockIcon } from "lucide-react";
 
 export default function Clock() {
   const [time, setTime] = useState(new Date());
@@ -9,9 +11,25 @@ export default function Clock() {
   }, []);
 
   return (
-    <div className="bg-black/50 backdrop-blur rounded-lg p-4 text-center">
-      <p className="text-lg text-white/90">{time.toLocaleDateString()}</p>
-      <p className="text-2xl text-white">{time.toLocaleTimeString()}</p>
-    </div>
+    <Card className="bg-black/30 backdrop-blur border-white/10">
+      <div className="p-4 flex flex-col items-center space-y-1">
+        <div className="flex items-center gap-2 text-white/70">
+          <ClockIcon className="h-4 w-4" />
+          {time.toLocaleDateString("pt-BR", {
+            weekday: "long",
+            day: "numeric",
+            month: "long",
+            year: "numeric",
+          })}
+        </div>
+        <p className="text-2xl font-bold text-white">
+          {time.toLocaleTimeString("pt-BR", {
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit",
+          })}
+        </p>
+      </div>
+    </Card>
   );
 }

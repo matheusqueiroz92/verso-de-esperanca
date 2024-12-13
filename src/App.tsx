@@ -12,7 +12,7 @@ function App() {
           <Route path="/" element={<Layout />} />
           <Route path="/search" element={<SearchResults />} />
           <Route
-            path="/book/:abbrevBook/chapter/:chapterNumber"
+            path="/book/:bookId/chapter/:chapterId"
             element={<ClickBibleBook />}
           />
         </Routes>
